@@ -15,27 +15,27 @@
 
 ## Добавить модуль в initrd
 ### Экспременты проводились на ВМ, использовался vagrant с box-образом generic/debian10 (debian 10.13)
-- модуль добавлялся с помощью пакета **dracut**
+- модуль добавлен с помощью пакета **dracut**, все делалось в соответствии с методичкой.
 ![""]()
 
 ## Переименовываем в LVM VG, на которой создан LV корневой ФС
 ### Экспременты проводились на ВМ c Debian 11.6. Исходно система была установлена на VG с именем VG_Oldname.
 
-- Перименовали VG_Oldname в VG_newname
+- Перименовали VG_Oldname в VG_newname.
 ```
 vgrename VG_Oldname VG_newname
 ```
 ![""]()
 
-- Внесли изменения только в файлы **/etc/fstab** и **/boot/grub/grub.cfg**
+- Внесли изменения только в файлы **/etc/fstab** и **/boot/grub/grub.cfg**.
 ```
 cat /etc/fstab | sed 's/VG_Oldname/VG_newname/' > tmp && mv tmp /etc/fstab
 cat /boot/grub/grub.cfg | sed 's/VG_Oldname/VG_newname/' > tmp && mv tmp /boot/grub.grub.cfg
 ```
 ![""]()
-Перезагрузили и долго ждали загрузки, тем не менее система загрузилас.
+Перезагрузили и долго ждали загрузки, тем не менее система загрузилась.
 
-- Дополнительно обновили initrd
+- Дополнительно обновили initrd.
 ```
 update-initramfs -u -k $(uname -r)
 ```
