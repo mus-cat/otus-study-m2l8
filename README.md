@@ -53,15 +53,15 @@ reboot
 - В свободном пространстве VG создаем место под **boot** (соответствующий LV)  и создаем там ФС
 ```
 lvcraete -l 100%free -n boot VG_newname
-mkfs.ext4 /dev/VG_newname_boot
+mkfs.ext4 /dev/VG_newname-boot
 ```
 
 - Перенсим содержимое папки **boot** в новое место. Вносим изменения в **/etc/fstab**. Исходный раздел где размещался **boot** (**/dev/sda1**) забиваем 0.
 ```
-mount /dev/VG_newname_boot /mnt
+mount /dev/VG_newname-boot /mnt
 cp -r /boot/* /mnt
 umount /mnt
-mount /dev/VG_newname_boot /boot
+mount /dev/VG_newname-boot /boot
 sed -E 's/(UUID.+)(\boot.+)/\/dev\/mapper\/VG_newname-boot\t\2' /etc/fstab > tmp && mv tmp /etc/fstab
 dd if=/dev/zero of=/dev/sda1 bs=10M
 ```
