@@ -12,18 +12,17 @@
 
 ## Добавить модуль в initrd
 ### Экспременты проводились на ВМ, использовался vagrant с box-образом generic/debian10 (debian 10.13)
-- модуль добавлен с помощью пакета **dracut**, все делалось в соответствии с методичкой.
-!["list dracut modules"](https://github.com/mus-cat/otus-study-m2l8/blob/main/08.mkinitrd.png)
+- модуль добавлен с помощью пакета **dracut**, все делалось в соответствии с методичкой. 
+!["list dracut modules"](https://github.com/mus-cat/otus-study-m2l8/blob/main/08.mkinitrd.png) 
 !["Draw pidgin on boot"](https://github.com/mus-cat/otus-study-m2l8/blob/main/09.pidgin.png)
 
-## Переименовываем в LVM VG, на которой создан LV корневой ФС
-### Экспременты проводились на ВМ c Debian 11.6. Исходно система была установлена на VG с именем VG_Oldname.
-
-- Было в начале
+## Переименовываем в LVM VG, на которой создан LV корневой ФС 
+### Экспременты проводились на ВМ c Debian 11.6. Исходно система была установлена на VG с именем VG_Oldname. 
+- Было в начале.  
 !["View mount"](https://github.com/mus-cat/otus-study-m2l8/blob/main/10.Initstate-MountLsblk.png)
 !["VIew fstab"](https://github.com/mus-cat/otus-study-m2l8/blob/main/11.Initstate-lvsFstab.png)
 
-- Перименовали VG_Oldname в VG_newname.
+- Перименовали `VG_Oldname` в `VG_newname`.
 ```
 vgrename VG_Oldname VG_newname
 ```
@@ -34,11 +33,11 @@ vgrename VG_Oldname VG_newname
 cat /etc/fstab | sed 's/VG_Oldname/VG_newname/' > tmp && mv tmp /etc/fstab
 cat /boot/grub/grub.cfg | sed 's/VG_Oldname/VG_newname/' > tmp && mv tmp /boot/grub.grub.cfg
 ```
-!["File change"](https://github.com/mus-cat/otus-study-m2l8/blob/main/13.plusMount.png)
-Перезагрузили и долго ждали загрузки, тем не менее система загрузилась.
-!["reboot result"](https://github.com/mus-cat/otus-study-m2l8/blob/main/14.rebootResult.png)
+!["File change"](https://github.com/mus-cat/otus-study-m2l8/blob/main/13.plusMount.png)  
+Перезагрузили и долго ждали загрузки, тем не менее система загрузилась.  
+!["reboot result"](https://github.com/mus-cat/otus-study-m2l8/blob/main/14.rebootResult.png)  
 
-- Дополнительно обновили initrd.
+- Дополнительно обновили **initrd**.
 ```
 update-initramfs -u -k $(uname -r)
 reboot
@@ -48,16 +47,16 @@ reboot
 ## Переносим boot раздел на LVM.
 ### Экспременты проводились на ВМ c Debian 11.6. Система установлена на VG с именем VG_newname, /boot исходно размещается на /dev/sda1
 
--Исходное состояние
-!["Initial state"](https://github.com/mus-cat/otus-study-m2l8/blob/main/15.initBootState.png)
+- Исходное состояние  
+!["Initial state"](https://github.com/mus-cat/otus-study-m2l8/blob/main/15.initBootState.png)  
 
-- В свободном пространстве VG создаем место под boot (соответствующий LV)  и создаем там ФС
+- В свободном пространстве VG создаем место под **boot** (соответствующий LV)  и создаем там ФС
 ```
 lvcraete -l 100%free -n boot VG_newname
 mkfs.ext4 /dev/VG_newname_boot
 ```
 
-- Перенсим содержимое папки boot в новое место. Вносим изменения в /etc/fstab. Исходный раздел где размещался boot (/dev/sda1) забиваем 0.
+- Перенсим содержимое папки **boot** в новое место. Вносим изменения в **/etc/fstab**. Исходный раздел где размещался **boot** (**/dev/sda1**) забиваем 0.
 ```
 mount /dev/VG_newname_boot /mnt
 cp -r /boot/* /mnt
@@ -68,7 +67,7 @@ dd if=/dev/zero of=/dev/sda1 bs=10M
 ```
 !["Zerorring"](https://github.com/mus-cat/otus-study-m2l8/blob/main/16.zerroringOldSda1.png)
 
-3. Устанавливаем grub с модулем lvm и создаем новый конфиг для grub (/boot/grub/grub.cfg).  Перезагружаемся.
+3. Устанавливаем **grub** с модулем **lvm** и создаем новый конфиг для **grub** (**/boot/grub/grub.cfg**).  Перезагружаемся.
 ```
 grub-mkconfig -o new.cfg && cp new.cfg /boot/grub/grub.cfg
 grub-install --modules=lvm /dev/sda
